@@ -148,7 +148,7 @@ endif()
 target_link_libraries(
   ecl
   PUBLIC ${m} ${dl} ${pthread} ${blas} ${zlib} ${shlwapi}
-  PRIVATE Backward::Backward fmt::fmt)
+  PRIVATE fmt)
 
 target_include_directories(
   ecl

@@ -58,24 +58,24 @@ else()
     WARNING "Unknown platform. Conan packages may not be configures correctly.")
 endif()
 
-conan_cmake_run(
-  # Packages
-  REQUIRES
-  backward-cpp/1.6
-  catch2/2.13.9
-  fmt/8.0.1
-  # Options
-  OPTIONS
-  catch2:with_main=True
-  ${conan_opts}
-  # Force cppstd to be the same as this CMakeLists.txt's
-  SETTINGS
-  compiler.cppstd=${CMAKE_CXX_STANDARD}
-  # Build from source if there are no pre-compiled binaries
-  BUILD
-  missing
-  GENERATORS
-  cmake_find_package)
+# conan_cmake_run(
+#   # Packages
+#   REQUIRES
+#   backward-cpp/1.6
+#   catch2/2.13.9
+#   fmt/8.0.1
+#   # Options
+#   OPTIONS
+#   catch2:with_main=True
+#   ${conan_opts}
+#   # Force cppstd to be the same as this CMakeLists.txt's
+#   SETTINGS
+#   compiler.cppstd=${CMAKE_CXX_STANDARD}
+#   # Build from source if there are no pre-compiled binaries
+#   BUILD
+#   missing
+#   GENERATORS
+#   cmake_find_package)
 
 # -----------------------------------------------------------------
 
@@ -242,8 +242,8 @@ find_package(CXX11Features)
 
 # -----------------------------------------------------------------
 
-find_package(Backward REQUIRED)
-find_package(fmt REQUIRED)
+# find_package(Backward REQUIRED)
+# find_package(fmt REQUIRED)
 
 # create targets for (required and optional) dependencies to link to
 
