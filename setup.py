@@ -3,9 +3,6 @@ import sys
 
 import setuptools
 import skbuild
-from setuptools_scm import get_version
-
-version = get_version(relative_to=__file__, write_to="python/resdata/version.py")
 
 
 # Corporate networks tend to be behind a proxy server with their own non-public
@@ -63,11 +60,8 @@ skbuild.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/equinor/resdata",
-    packages=setuptools.find_packages(
-        where="python",
-        exclude=["*.tests", "*.tests.*", "tests.*", "tests", "ert.*", "ert"],
-    ),
-    package_dir={"": "python"},
+    packages=setuptools.find_packages(where="src"),
+    package_dir={"": "src"},
     license="GPL-3.0",
     platforms="any",
     install_requires=[
@@ -75,20 +69,16 @@ skbuild.setup(
         "numpy",
         "pandas",
     ],
-    setup_requires=["conan<2"],
     entry_points={"console_scripts": utility_wrappers()},
     cmake_args=[
-        "-DRD_VERSION=" + version,
         "-DBUILD_APPLICATIONS=" + ("ON" if sys.platform == "linux" else "OFF"),
-        "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
-        "-DCMAKE_INSTALL_BINDIR=python/resdata/.bin",
-        "-DCMAKE_INSTALL_LIBDIR=python/resdata/.libs",
-        "-DCMAKE_INSTALL_INCLUDEDIR=python/resdata/.include",
+        "-DBUILD_TESTS=OFF",
         # we can safely pass OSX_DEPLOYMENT_TARGET as it's ignored on
-        # everything not OS X. We depend on C++11, which makes our minimum
-        # supported OS X release 10.9
-        "-DCMAKE_OSX_DEPLOYMENT_TARGET=10.9",
+        # everything not OS X. We depend on C++17, which makes our minimum
+        # supported OS X release 10.15
+        "-DCMAKE_OSX_DEPLOYMENT_TARGET=10.15",
     ],
+    cmake_source_dir="src/clib/",
     # skbuild's test imples develop, which is pretty obnoxious instead, use a
     # manually integrated pytest.
     cmdclass={"test": setuptools.command.test.test},
@@ -110,5 +100,4 @@ skbuild.setup(
         "Topic :: Software Development :: Libraries",
         "Topic :: Utilities",
     ],
-    version=version,
 )
