@@ -22,24 +22,6 @@ if(MSVC)
   configure_file(include/ert/util/msvc_stdbool.h ert/util/stdbool.h)
 endif()
 
-foreach(type int double long time_t float)
-  set(TYPE ${type})
-  set(SIGNED_TYPE true)
-  configure_file(vector_template.h.in include/ert/util/${type}_vector.h)
-  configure_file(vector_template.hpp.in include/ert/util/${type}_vector.hpp)
-  configure_file(util/vector_template.cpp.in ${type}_vector.cpp)
-  list(APPEND opt_srcs ${CMAKE_CURRENT_BINARY_DIR}/${type}_vector.cpp)
-endforeach()
-
-foreach(type bool size_t)
-  set(TYPE ${type})
-  set(SIGNED_TYPE false)
-  configure_file(vector_template.h.in include/ert/util/${type}_vector.h)
-  configure_file(vector_template.hpp.in include/ert/util/${type}_vector.hpp)
-  configure_file(util/vector_template.cpp.in ${type}_vector.cpp)
-  list(APPEND opt_srcs ${CMAKE_CURRENT_BINARY_DIR}/${type}_vector.cpp)
-endforeach()
-
 if(ZLIB_FOUND)
   list(APPEND opt_srcs util/util_zlib.cpp)
 endif()
@@ -76,6 +58,10 @@ add_library(
   util/perm_vector.cpp
   util/test_util.cpp
   util/cxx_string_util.cpp
+  util/int_vector.cpp
+  util/double_vector.cpp
+  util/time_t_vector.cpp
+  util/bool_vector.cpp
   ${opt_srcs}
   resdata/rd_rsthead.cpp
   resdata/rd_sum_tstep.cpp
