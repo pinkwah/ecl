@@ -1,2 +1,60 @@
 [build-system]
-requires = ["setuptools", "setuptools_scm", "wheel", "scikit-build", "cmake", "conan<2", "ninja"]
+requires = [
+    "setuptools<64; python_version < '3.12'",
+    "setuptools; python_version >= '3.12'",
+    "setuptools_scm[toml]>=6.2",
+    "wheel",
+    "scikit-build"
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "resdata"
+authors = [{ name = "Equinor ASA", email = "fg_sib-scout@equinor.com" }]
+description = "Package for reading and writing the fortran result files from reservoir simulators"
+# url = "https://github.com/equinor/resdata"
+license = { text = "GPL-3.0" }
+classifiers = [
+        "Development Status :: 5 - Production/Stable",
+        "Environment :: Other Environment",
+        "Intended Audience :: Developers",
+        "Intended Audience :: Science/Research",
+        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+        "Natural Language :: English",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
+        "Topic :: Scientific/Engineering",
+        "Topic :: Scientific/Engineering :: Physics",
+        "Topic :: Software Development :: Libraries",
+        "Topic :: Utilities",
+]
+
+dependencies = [
+    "cwrap",
+    "numpy",
+    "pandas",
+]
+dynamic = ["version"]
+
+[scripts]
+"CF_dump" = "resdata.bin:main"
+"convert.x" = "resdata.bin:main"
+"rd_pack.x" = "resdata.bin:main"
+"rd_unpack.x" = "resdata.bin:main"
+"grdecl_grid" = "resdata.bin:main"
+"grdecl_test.x" = "resdata.bin:main"
+"grid_dump.x" = "resdata.bin:main"
+"grid_dump_ascii.x" = "resdata.bin:main"
+"grid_info.x" = "resdata.bin:main"
+"kw_extract" = "resdata.bin:main"
+"kw_list.x" = "resdata.bin:main"
+"load_test.x" = "resdata.bin:main"
+"make_grid" = "resdata.bin:main"
+"ri_well_test" = "resdata.bin:main"
+"segment_info" = "resdata.bin:main"
+"select_test.x" = "resdata.bin:main"
+"summary.x" = "resdata.bin:main"

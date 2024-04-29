@@ -1,20 +1,14 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.19)
 project(resdata C CXX)
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-include(GNUInstallDirs)
-include(TestBigEndian)
-
 option(BUILD_TESTS "Should the tests be built" ON)
-option(BUILD_APPLICATIONS "Should we build small utility applications" OFF)
-option(BUILD_RD_SUMMARY "Build the commandline application rd_summary" OFF)
-option(BUILD_SHARED_LIBS "Build shared libraries" ON)
-option(ERT_USE_OPENMP "Use OpenMP" OFF)
-option(RST_DOC "Build RST documentation" OFF)
-option(USE_RPATH "Don't strip RPATH from libraries and binaries" OFF)
 option(USE_CONAN "Use Conan (https://conan.io) for package management" ON)
+
+set(CMAKE_C_STANDARD 99)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_SHARED_LIBRARY_SUFFIX ".so")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules"
+     "${CMAKE_CURRENT_BINARY_DIR}")
 
 # -----------------------------------------------------------------
 # Set default CMAKE_BUILD_TYPE
@@ -75,6 +69,7 @@ if(USE_CONAN)
     backward-cpp/1.6
     catch2/2.13.9
     fmt/8.0.1
+    pybind11/2.12.0
     # Options
     OPTIONS
     catch2:with_main=True
@@ -240,11 +235,15 @@ endif()
 
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/Modules
      "${CMAKE_CURRENT_BINARY_DIR}")
-find_package(CXX11Features)
 
 # -----------------------------------------------------------------
+# Dependencies
+# -----------------------------------------------------------------
 
+find_package(Filesystem REQUIRED)
+find_package(Threads REQUIRED)
 find_package(fmt REQUIRED)
+find_package(pybind11 REQUIRED)
 if(USE_CONAN)
   find_package(Backward REQUIRED)
 else()
@@ -357,8 +356,6 @@ check_include_file(execinfo.h HAVE_EXECINFO)
 check_include_file(getopt.h ERT_HAVE_GETOPT)
 check_include_file(unistd.h ERT_HAVE_UNISTD)
 
-test_big_endian(BIG_ENDIAN)
-
 check_type_size(time_t SIZE_OF_TIME_T)
 if(${SIZE_OF_TIME_T} EQUAL 8)
   try_run(RUN_RESULT COMPILE_RESULT ${CMAKE_BINARY_DIR}
@@ -448,15 +445,3 @@ endif()
 
 add_subdirectory(lib)
 add_subdirectory(applications)
-add_subdirectory(bin)
-
-if(RST_DOC)
-  add_subdirectory(python/docs)
-endif()
-
-if(NOT SKBUILD)
-  # Avoid installing when calling from python setup.py
-  install(EXPORT resdata-config DESTINATION share/cmake/resdata)
-  export(TARGETS resdata FILE resdataConfig.cmake)
-  export(PACKAGE resdata)
-endif()

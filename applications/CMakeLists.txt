@@ -3,11 +3,11 @@ project(resdata-applications)
 function(target_link_resdata target)
   target_link_libraries(${target} resdata)
   if(SKBUILD)
-    set_target_properties(${target} PROPERTIES INSTALL_RPATH "$ORIGIN/../.libs")
+    set_target_properties(${target} PROPERTIES INSTALL_RPATH "$ORIGIN/..")
   endif()
+  install(TARGETS ${target} RUNTIME DESTINATION python/resdata/.bin)
 endfunction()
 
-if(BUILD_APPLICATIONS)
   add_executable(sum_write resdata/sum_write.cpp)
   add_executable(make_grid resdata/make_grid.c)
   add_executable(grdecl_grid resdata/grdecl_grid.c)
@@ -60,30 +60,3 @@ if(BUILD_APPLICATIONS)
   target_link_resdata(ri_well_test)
 
   list(APPEND apps segment_info CF_dump ri_well_test)
-endif()
-
-if(BUILD_RD_SUMMARY)
-  add_executable(rd_summary resdata/view_summary.cpp)
-  target_link_resdata(rd_summary)
-  list(APPEND apps rd_summary)
-
-  install(FILES ${PROJECT_SOURCE_DIR}/man/man1/rd_summary.1
-          DESTINATION ${CMAKE_INSTALL_MANDIR}/man1)
-endif()
-
-if(apps)
-  if(ERT_USE_OPENMP)
-    foreach(app ${apps})
-      target_compile_options(${app} PUBLIC ${OpenMP_C_FLAGS})
-      set_property(
-        TARGET ${app}
-        APPEND
-        PROPERTY LINK_FLAGS ${OpenMP_C_FLAGS})
-    endforeach()
-  endif()
-  install(
-    TARGETS ${apps}
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-endif()

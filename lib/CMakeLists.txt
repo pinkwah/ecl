@@ -49,8 +49,10 @@ configure_file(ert_api_config.h.in include/ert/util/ert_api_config.h)
 configure_file(build_config.hpp.in include/ert/util/build_config.hpp)
 configure_file(ert_api_config.hpp.in include/ert/util/ert_api_config.hpp)
 
-add_library(
-  resdata
+pybind11_add_module(
+  _clib
+  SHARED
+  python/init.cpp
   util/rng.cpp
   util/lookup_table.cpp
   util/statistics.cpp
@@ -72,7 +74,6 @@ add_library(
   util/buffer.cpp
   util/string_util.cpp
   util/type_vector_functions.cpp
-  util/rd_version.cpp
   util/perm_vector.cpp
   util/test_util.cpp
   util/cxx_string_util.cpp
@@ -137,64 +138,31 @@ add_library(
   geometry/geo_polygon.cpp
   geometry/geo_polygon_collection.cpp)
 
-if(ERT_WINDOWS)
-  set_target_properties(resdata PROPERTIES PREFIX "lib")
-  if(MSVC)
-    set_target_properties(resdata PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON)
-  endif()
-endif()
+# -----------------------------------------------------------------
+# Target: Python C Extension 'resdata._clib'
+# -----------------------------------------------------------------
 
-target_link_libraries(
-  resdata
-  PUBLIC ${m} ${dl} ${pthread} ${blas} ${zlib} ${shlwapi}
-  PRIVATE fmt::fmt)
+target_link_libraries(_clib PUBLIC std::filesystem fmt::fmt)
 
 target_include_directories(
-  resdata
-  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
-         $<INSTALL_INTERFACE:include> ${Backward_INCLUDES}
-  PRIVATE ${ZLIB_INCLUDE_DIRS} util include
-          ${CMAKE_CURRENT_SOURCE_DIR}/private-include
-          ${CMAKE_CURRENT_BINARY_DIR}/include)
+  _clib
+  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_BINARY_DIR}/include)
+set_target_properties(_clib PROPERTIES CXX_VISIBILITY_PRESET "default")
+install(TARGETS _clib LIBRARY DESTINATION python/resdata)
 
-target_compile_definitions(
-  resdata
-  PRIVATE -DGIT_COMMIT=${GIT_COMMIT}
-          -DGIT_COMMIT_SHORT=${GIT_COMMIT_SHORT}
-          -DRD_VERSION_MAJOR=${RD_VERSION_MAJOR}
-          -DRD_VERSION_MINOR=${RD_VERSION_MINOR}
-          -DRD_VERSION_MICRO=${RD_VERSION_MICRO}
-          $<$<BOOL:${BIG_ENDIAN}>:HOST_BIG_ENDIAN>)
+# -----------------------------------------------------------------
+# Target: 'libresdata.so' for use in tests and applications
+# -----------------------------------------------------------------
 
-target_compile_options(resdata PUBLIC ${pthreadarg})
-
-if(ERT_USE_OPENMP)
-  target_compile_options(resdata PUBLIC ${OpenMP_CXX_FLAGS})
-  set_property(
-    TARGET resdata
-    APPEND
-    PROPERTY LINK_FLAGS ${OpenMP_CXX_FLAGS})
-  target_link_libraries(resdata PUBLIC ${OpenMP_EXE_LINKER_FLAGS})
-endif()
-
-set_target_properties(
-  resdata PROPERTIES VERSION ${RD_VERSION_MAJOR}.${RD_VERSION_MINOR}
-                     SOVERSION ${RD_VERSION_MAJOR})
-
-install(
-  TARGETS resdata
-  EXPORT resdata-config
-  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/include/
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+add_library(resdata SHARED $<TARGET_OBJECTS:_clib>)
 
 if(NOT BUILD_TESTS)
   return()
 endif()
+
+# -----------------------------------------------------------------
+# Tests
+# -----------------------------------------------------------------
 
 add_executable(rd_test_suite tests/test_rd_grid.cpp tests/test_rd_util.cpp
                              tests/testsuite.cpp tests/test_util.cpp)
