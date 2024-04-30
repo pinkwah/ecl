@@ -11,7 +11,6 @@
 #include <resdata/rd_grid.hpp>
 #include <resdata/rd_file.hpp>
 
-#include <ert/util/ert_unique_ptr.hpp>
 #include <ert/util/util.hpp>
 
 namespace {
@@ -20,15 +19,15 @@ const auto GRIDX = 10, GRIDY = 10, GRIDZ = 10;
 const auto GRID_NNC_NUM = 342;
 const auto INIT_NNC_NUM = 298;
 
-ERT::ert_unique_ptr<rd_grid_type, rd_grid_free> make_intersect_grid() {
-    auto out = ERT::ert_unique_ptr<rd_grid_type, rd_grid_free>(
-        rd_grid_alloc_rectangular(GRIDX, GRIDY, GRIDZ, 1., 1., 1., nullptr));
+rd_grid_type *make_intersect_grid() {
+    auto out =
+        rd_grid_alloc_rectangular(GRIDX, GRIDY, GRIDZ, 1., 1., 1., nullptr);
     for (auto i = 0; i < GRID_NNC_NUM; ++i)
-        rd_grid_add_self_nnc(out.get(), 2 * i + 1, 2 * i, i);
+        rd_grid_add_self_nnc(out, 2 * i + 1, 2 * i, i);
     return out;
 }
 
-ERT::ert_unique_ptr<rd_file_type, rd_file_close> make_intersect_init_file() {
+rd_file_type *make_intersect_init_file() {
     // Create keywords with useless data
     auto nnc1_kw = rd_kw_alloc(NNC1_KW, INIT_NNC_NUM, RD_INT);
     auto nnc2_kw = rd_kw_alloc(NNC2_KW, INIT_NNC_NUM, RD_INT);
@@ -49,8 +48,7 @@ ERT::ert_unique_ptr<rd_file_type, rd_file_close> make_intersect_init_file() {
     fortio_fclose(fortio);
 
     // reopen the file as an ecl file
-    auto out = ERT::ert_unique_ptr<rd_file_type, rd_file_close>(
-        rd_file_open(init_filename, 0));
+    auto out = rd_file_open(init_filename, 0);
 
     rd_kw_free(nnc1_kw);
     rd_kw_free(nnc2_kw);
@@ -63,17 +61,17 @@ ERT::ert_unique_ptr<rd_file_type, rd_file_close> make_intersect_init_file() {
 int main(int argc, char **argv) {
     util_install_signals();
 
-    const auto grid = make_intersect_grid();
-    const auto init_file = make_intersect_init_file();
+    auto grid = make_intersect_grid();
+    auto init_file = make_intersect_init_file();
 
-    test_assert_true(rd_nnc_intersect_format(grid.get(), init_file.get()));
-    test_assert_int_equal(rd_nnc_export_get_size(grid.get(), init_file.get()),
+    test_assert_true(rd_nnc_intersect_format(grid, init_file));
+    test_assert_int_equal(rd_nnc_export_get_size(grid, init_file),
                           INIT_NNC_NUM);
 
     auto nnc_data = std::vector<rd_nnc_type>(
-        rd_nnc_export_get_size(grid.get(), init_file.get()));
+        rd_nnc_export_get_size(grid, init_file));
     auto const total_valid_trans =
-        rd_nnc_export(grid.get(), init_file.get(), nnc_data.data());
+        rd_nnc_export(grid, init_file, nnc_data.data());
     test_assert_int_equal(total_valid_trans, INIT_NNC_NUM);
     test_assert_int_equal(int(nnc_data.size()), INIT_NNC_NUM);
 
@@ -90,6 +88,9 @@ int main(int argc, char **argv) {
             nnc.trans, 2.5 * i); // as set in make_intersect_init_file()
         test_assert_int_equal(nnc.input_index, i);
     }
+
+    rd_file_close(init_file);
+    rd_grid_free(grid);
 
     return 0;
 }

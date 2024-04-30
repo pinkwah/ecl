@@ -128,8 +128,6 @@ add_library(
   resdata/well_segment_collection.cpp
   resdata/well_branch_collection.cpp
   resdata/well_rseg_loader.cpp
-  resdata/FortIO.cpp
-  resdata/RDFilename.cpp
   geometry/geo_surface.cpp
   geometry/geo_util.cpp
   geometry/geo_pointset.cpp
@@ -388,18 +386,6 @@ foreach(name geo_util_xlines geo_polygon geo_polygon_collection)
   add_executable(${name} geometry/tests/${name}.cpp)
   target_link_libraries(${name} resdata)
   add_test(NAME ${name} COMMAND ${name})
-endforeach()
-
-foreach(test ert_util_unique_ptr)
-  add_executable(${test} util/tests/${test}.cpp)
-  target_link_libraries(${test} resdata)
-  add_test(NAME ${test} COMMAND ${test})
-endforeach()
-
-foreach(test rdxx_kw rdxx_fortio rdxx_filename rdxx_types)
-  add_executable(${test} resdata/tests/${test}.cpp)
-  target_link_libraries(${test} resdata)
-  add_test(NAME ${test} COMMAND ${test})
 endforeach()
 
 foreach(
