@@ -5,7 +5,6 @@
 #include <ert/util/util.h>
 #include <ert/util/test_util.hpp>
 #include <ert/util/stringlist.hpp>
-#include <ert/util/test_work_area.hpp>
 
 void test_char() {
     const char *S1 = "S1";

@@ -5,7 +5,6 @@
 
 #include <ert/util/test_util.hpp>
 #include <ert/util/util.h>
-#include <ert/util/test_work_area.hpp>
 
 #include <ert/geometry/geo_surface.hpp>
 
@@ -25,20 +24,21 @@ void test_load(const char *input_file, const char *broken_file) {
 }
 
 void test_fprintf(const char *input_file) {
-    geo_surface_type *surface1 = geo_surface_fload_alloc_irap(input_file, true);
-    test_work_area_type *work_area = test_work_area_alloc("SURFACE-FPRINTF");
+    exit(1);
+    // geo_surface_type *surface1 = geo_surface_fload_alloc_irap(input_file, true);
+    // test_work_area_type *work_area = test_work_area_alloc("SURFACE-FPRINTF");
 
-    geo_surface_fprintf_irap(surface1, "surface/test/surface.irap");
-    {
-        geo_surface_type *surface2 =
-            geo_surface_fload_alloc_irap("surface/test/surface.irap", true);
+    // geo_surface_fprintf_irap(surface1, "surface/test/surface.irap");
+    // {
+    //     geo_surface_type *surface2 =
+    //         geo_surface_fload_alloc_irap("surface/test/surface.irap", true);
 
-        test_assert_true(geo_surface_equal(surface1, surface2));
+    //     test_assert_true(geo_surface_equal(surface1, surface2));
 
-        geo_surface_free(surface2);
-    }
-    test_work_area_free(work_area);
-    geo_surface_free(surface1);
+    //     geo_surface_free(surface2);
+    // }
+    // test_work_area_free(work_area);
+    // geo_surface_free(surface1);
 }
 
 void test_create_new(const char *input_file) {
